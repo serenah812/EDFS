@@ -10,7 +10,7 @@ async def handle_client(reader, writer):
     # 执行commad
     parts = message.split()
     if (parts[0] == 'edfs'):
-        filename = './Shell/dfs.py'
+        filename = '../Shell/dfs.py'
         args = ['python', filename]
         for i in parts:
             if(i!='edfs'):

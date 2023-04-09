@@ -152,8 +152,8 @@ def get(url, edfs_path, local_path):
         print('Error: ' + edfs_path + ' is a directory.')
 
 def main():
-    # url = 'https://hw2-ee3e3-default-rtdb.firebaseio.com'
-    url = 'https://dsci551-default-a0090-default-rtdb.firebaseio.com'
+    url = 'https://hw2-ee3e3-default-rtdb.firebaseio.com'
+    # url = 'https://dsci551-default-a0090-default-rtdb.firebaseio.com'
     # check if the command start with -
     command = sys.argv[1]
     if not command.startswith('-'):
