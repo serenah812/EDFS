@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>File Upload</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!--	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
+</head>
+<body>
+	<h1>File Upload</h1>
+	<input type="file" id="fileInput">
+	<button onclick="handleFile()">Upload</button>
+
+	<h2>Uploaded file content:</h2>
+	<pre id="fileData"></pre>
+
+	<button onclick="sendFileContent()">Send File Content</button>
+	<p id="response"></p>
+	<h2>Command</h2>
+	<input type="text" id="inputData">
+	<button onclick="sendData()">Send</button>
+	<script>
+		let fileContent = '';
+
+		function handleFile() {
+			const file = document.getElementById("fileInput").files[0];
+			const reader = new FileReader();
+
+			reader.onload = function(event) {
+				fileContent = event.target.result;
+				document.getElementById("fileData").textContent = fileContent;
+			};
+
+			reader.readAsText(file);
+		}
+
+		function sendFileContent() {
+			$.ajax({
+				type: 'POST',
+				// url: '/upload',
+				url: 'http://localhost:8000/upload',
+				data: JSON.stringify({ 'content': fileContent }),
+				contentType: 'application/json',
+				success: function(response) {
+					console.log($('#response').text(response));
+				}
+			});
+		}
+
+		function sendData() {
+		const data = document.getElementById("inputData").value;
+		$.ajax({
+			type: 'POST',
+			url: 'http://localhost:8000/upload',
+			data: JSON.stringify({ 'command': data }),
+			contentType: 'application/json',
+			success: function(response) {
+				console.log($('#response').text(response));
+			}
+		});
+	}
+	</script>
+</body>
+</html>
