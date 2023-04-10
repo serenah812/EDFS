@@ -15,6 +15,7 @@ async def handle_client(reader, writer):
         for i in parts:
             if(i!='edfs'):
                 args.append(i)
+        # print(args)
         try:
             result = subprocess.run(args, capture_output=True, text=True)
             print(result.stdout)
