@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>File Upload</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>EDFS</title>
 	<style>
+		* {
+		  box-sizing: border-box;
+		}
+
 	    html,body,h1,h2,h3,h4 {font-family: "Roboto", sans-serif;}
+
 	    body {
-	    margin: 20px;
-	    background-color: #EAEDED;
+		    margin: 20px;
+		    background-color: #EAEDED;
 		}
-		#wrapper {
-			max-width: 1000px;
-			border-radius: 25px;
-			background-color:#fff;
-			line-height:1.5;
-			margin: 0 auto;
-			padding: 25px;
-		}
+
 		#header {
-			border-radius: 25px;
+			border-radius: 20px;
 		  	background-image: url('img/header.jpg');
 			height: 300px;
 		    background-size: cover;
@@ -26,7 +25,42 @@
 		    font-size: 1.6em;
 		    text-align: center;
 		    line-height: 300px;
+		    margin-bottom: 20px;
 		}
+
+		#wrapper {
+			max-width: 1000px;
+			border-radius: 20px;
+			background-color:#fff;
+			line-height:1.5;
+			margin: 0 auto;
+			padding-top: 5px;
+			padding-right: 25px;
+			padding-bottom: 25px;
+			padding-left: 25px;
+		}
+
+		#sidebar {
+			background-color: #85C1E9;
+			width: 35%;
+			float: left;
+			border-radius: 20px;
+			line-height:1.5;
+			padding: 20px;
+		}
+
+		#content {
+			background-color: #fff;
+			width: 65%;
+			line-height:1.5;
+			padding: 20px;
+			float: left;
+		}
+		.clearfloat {
+			clear: both;
+		}
+
+
   	</style>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!--	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>-->
@@ -38,6 +72,13 @@
 	<h1>EDFS</h1>
 	</div>
 
+	<div id="sidebar">
+		<h2>Overview</h2>
+		<p>The goal of our project is to emulate the Hadoop Distributed File System (HDFS) and create a functional Emulating HDFS (EDFS). </p>
+		<p>Lorem ipsum dolor sit amet. Ut maxime galisum in officia enim eos ipsum sunt. Ut consequatur consequuntur ea dolor ipsum ut reprehenderit nemo eum velit repudiandae hic dolore impedit. Et dolor cumque quo magnam dolores est eaque quisquam.</p>
+	</div>
+
+	<div id="content">
 	<h2>File Upload</h2>
 	<input type="file" id="fileInput">
 	<button onclick="handleFile()">Upload</button>
@@ -50,9 +91,10 @@
 	<h2>Command</h2>
 	<input type="text" id="inputData">
 	<button onclick="sendData()">Send</button>
-
 	</div>
-	
+	<div class="clearfloat"></div>
+	</div> 
+
 	<script>
 		let fileContent = '';
 
