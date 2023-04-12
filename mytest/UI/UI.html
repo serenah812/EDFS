@@ -8,11 +8,23 @@
 		  box-sizing: border-box;
 		}
 
-	    html,body,h1,h2,h3,h4 {font-family: "Roboto", sans-serif;}
+	    html,body,h1,h2,h3,h4,p {font-family: "Roboto", sans-serif; margin: 10px 0;}
+
+	    h1 {
+	    	margin: 0;
+	    }
 
 	    body {
-		    margin: 20px;
+		    margin: 25px;
 		    background-color: #EAEDED;
+		}
+
+		input {
+  			width: 80%;
+		}
+
+		button {
+			margin: 10px 0;
 		}
 
 		#header {
@@ -25,26 +37,25 @@
 		    font-size: 1.6em;
 		    text-align: center;
 		    line-height: 300px;
-		    margin-bottom: 20px;
+		    margin-bottom: 25px;
 		}
 
 		#wrapper {
-			max-width: 1000px;
+			max-width: 1200px;
 			border-radius: 20px;
 			background-color:#fff;
 			line-height:1.5;
 			margin: 0 auto;
-			padding-top: 5px;
-			padding-right: 25px;
-			padding-bottom: 25px;
-			padding-left: 25px;
+			padding: 25px;
 		}
 
 		#sidebar {
-			background-color: #85C1E9;
 			width: 35%;
 			float: left;
+			border-style: solid;
 			border-radius: 20px;
+			border-color: #5DADE2;
+			border-width: medium;
 			line-height:1.5;
 			padding: 20px;
 		}
@@ -56,10 +67,10 @@
 			padding: 20px;
 			float: left;
 		}
+
 		.clearfloat {
 			clear: both;
 		}
-
 
   	</style>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -81,15 +92,18 @@
 	<div id="content">
 	<h2>File Upload</h2>
 	<input type="file" id="fileInput">
-	<button onclick="handleFile()">Upload</button>
-		
+	<br>
+	<button onclick="handleFile()">Upload</button><br>
+	
 	<h2>Uploaded file content:</h2>
 	<pre id="fileData"></pre>
 	<button onclick="sendFileContent()">Send File Content</button>
 	<p id="response"></p>
 
 	<h2>Command</h2>
-	<input type="text" id="inputData">
+	<p>Supported Commands: -ls, -rm, -put, -get, -mkdir, -rmdir, -cat.</p>
+	<input type="text" id="inputData" placeholder="edfs -ls /user">
+	<br>
 	<button onclick="sendData()">Send</button>
 	</div>
 	<div class="clearfloat"></div>
@@ -124,17 +138,17 @@
 		}
 
 		function sendData() {
-		const data = document.getElementById("inputData").value;
-		$.ajax({
-			type: 'POST',
-			url: 'http://localhost:8000/upload',
-			data: JSON.stringify({ 'command': data }),
-			contentType: 'application/json',
-			success: function(response) {
-				console.log($('#response').text(response));
-			}
-		});
-	}
+			const data = document.getElementById("inputData").value;
+			$.ajax({
+				type: 'POST',
+				url: 'http://localhost:8000/upload',
+				data: JSON.stringify({ 'command': data }),
+				contentType: 'application/json',
+				success: function(response) {
+					console.log($('#response').text(response));
+				}
+			});
+		}
 	</script>
 </body>
 </html>
