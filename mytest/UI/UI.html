@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+	<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>EDFS</title>
 	<style>
@@ -27,8 +29,31 @@
 			margin: 10px 0;
 		}
 
+		.topnav {
+			border-radius: 0 0 10px 10px;
+		  	background-color: #5DADE2;
+		  	overflow: hidden;
+		  	margin-bottom: 25px;
+		}
+
+		.topnav a {
+			float: left;
+			color: #fff;
+			font-weight: bold;
+			text-align: center;
+			padding: 14px 16px;
+			text-decoration: none;
+			font-size: 17px;
+		}
+
+		.topnav a:hover {
+		  	background-color: #EAEDED;
+		  	color: #2471A3;
+		}
+
+
 		#header {
-			border-radius: 20px;
+			border-radius: 10px 10px 0 0;
 		  	background-image: url('img/header.jpg');
 			height: 300px;
 		    background-size: cover;
@@ -37,35 +62,42 @@
 		    font-size: 1.6em;
 		    text-align: center;
 		    line-height: 300px;
-		    margin-bottom: 25px;
 		}
 
 		#wrapper {
 			max-width: 1200px;
-			border-radius: 20px;
+			border-radius: 10px;
 			background-color:#fff;
 			line-height:1.5;
 			margin: 0 auto;
 			padding: 25px;
 		}
 
-		#sidebar {
-			width: 35%;
-			float: left;
+		#overview {
 			border-style: solid;
-			border-radius: 20px;
+			border-radius: 10px;
 			border-color: #5DADE2;
 			border-width: medium;
-			line-height:1.5;
 			padding: 20px;
+			margin-bottom: 25px;
 		}
 
-		#content {
-			background-color: #fff;
-			width: 65%;
-			line-height:1.5;
+		#file {
+			border-style: solid;
+			border-radius: 10px;
+			border-color: #5DADE2;
+			border-width: medium;
 			padding: 20px;
-			float: left;
+			margin-bottom: 25px;
+		}
+
+		#command {
+			border-style: solid;
+			border-radius: 10px;
+			border-color: #5DADE2;
+			border-width: medium;
+			padding: 20px;
+			margin-bottom: 25px;
 		}
 
 		.clearfloat {
@@ -83,13 +115,20 @@
 	<h1>EDFS</h1>
 	</div>
 
-	<div id="sidebar">
+	<div class="topnav">
+	  <a href="#overview">Overview</a>
+	  <a href="#file">File Upload/Download</a>
+	  <a href="#command">Command</a>
+	</div>
+
+	<div id="overview">
 		<h2>Overview</h2>
 		<p>The goal of our project is to emulate the Hadoop Distributed File System (HDFS) and create a functional Emulating HDFS (EDFS). </p>
 		<p>Lorem ipsum dolor sit amet. Ut maxime galisum in officia enim eos ipsum sunt. Ut consequatur consequuntur ea dolor ipsum ut reprehenderit nemo eum velit repudiandae hic dolore impedit. Et dolor cumque quo magnam dolores est eaque quisquam.</p>
+		<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>
 	</div>
 
-	<div id="content">
+	<div id="file">
 	<h2>File Upload</h2>
 	<input type="file" id="fileInput">
 	<br>
@@ -99,15 +138,17 @@
 	<pre id="fileData"></pre>
 	<button onclick="sendFileContent()">Send File Content</button>
 	<p id="response"></p>
+	</div>
 
+	<div id="command">
 	<h2>Command</h2>
 	<p>Supported Commands: -ls, -rm, -put, -get, -mkdir, -rmdir, -cat.</p>
 	<input type="text" id="inputData" placeholder="edfs -ls /user">
 	<br>
 	<button onclick="sendData()">Send</button>
+	<h3>Output:</h3>
+	<p id="outputText"></p>
 	</div>
-	<div class="clearfloat"></div>
-	</div> 
 
 	<script>
 		let fileContent = '';
@@ -145,7 +186,9 @@
 				data: JSON.stringify({ 'command': data }),
 				contentType: 'application/json',
 				success: function(response) {
-					console.log($('#response').text(response));
+					const output = document.getElementById('outputText');
+					output.innerHTML = response;
+					// console.log($('#response').text(response));
 				}
 			});
 		}

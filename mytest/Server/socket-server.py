@@ -18,10 +18,13 @@ async def handle_client(reader, writer):
         # print(args)
         try:
             result = subprocess.run(args, capture_output=True, text=True)
+            writer.write(result.stdout.encode())
             print(result.stdout)
         except Exception as e:
             print(e)
 
+    await writer.drain()
+    writer.close()
 
 
     	# writer.write(b'edfs -ls')

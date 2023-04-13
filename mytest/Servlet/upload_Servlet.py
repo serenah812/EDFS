@@ -9,7 +9,8 @@ async def tcp_client(message):
     reader, writer = await asyncio.open_connection('127.0.0.1', 8001)
     writer.write(message.encode())
     await writer.drain()
-    await reader.read(100)
+    data = await reader.read(100)
+    return data.decode()
 
 # 前端获取上传的文件的数据
 async def handle_upload(request):
@@ -22,8 +23,9 @@ async def handle_upload(request):
 async def handle_upload(request):
     data = await request.json()
     command = data.get('command')
-    await tcp_client(command)
-    return web.Response(text=command)
+    # get output of the command from socket server
+    output = await tcp_client(command)
+    return web.Response(text=output)
 
 # async def handle_index(request):
 #     with open('UI/UI.html') as f:
