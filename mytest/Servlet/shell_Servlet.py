@@ -1,9 +1,8 @@
+import json
 import aiohttp_cors
 import asyncio
 from aiohttp import web
 import tracemalloc
-import json
-
 tracemalloc.start()
 
 # 数据传输给服务器
@@ -12,31 +11,26 @@ async def tcp_client(message):
     message = json.dumps(message)
     writer.write(message.encode())
     await writer.drain()
-    data = await reader.read(1000)
+    data = await reader.read(100)
     return data.decode()
 
-# 前端获取上传的文件的数据
+# 前端获取Command
 async def handle_upload(request):
     data = await request.json()
-    content = data.get('content')
-    filename = data.get('filename')
-    replication = data.get('replication')
-    blocksize = data.get('blocksize')
-    # 创建一个空字典,添加键值对
+    command = data.get('command')
+    # get output of the command from socket server
     dict = {}
-    dict['type'] = 'upload'
-    dict['content'] = content
-    filename = filename.replace(".", "-")
-    dict['filename'] = filename
-    dict['replication'] = replication
-    dict['blocksize'] = blocksize
-    await tcp_client(dict)
-    return web.Response(text=dict)
+    dict['type'] = 'shell'
+    dict['command'] = command
+    output = await tcp_client(dict)
+    # if(command == 'edfs -ls /MetaData'):
+    #     output =json.dumps({'fileName':'text.txt'})
+    return web.Response(text=output)
 
 #配置webapp接受前端数据
 app = web.Application()
 app.add_routes([
-    web.post('/upload', handle_upload)
+    web.post('/shell', handle_upload)
     # web.get('/', handle_index),
     # web.static('/', './')
 ])
@@ -52,7 +46,7 @@ cors = aiohttp_cors.setup(app, defaults={
 for route in list(app.router.routes()):
     cors.add(route)
 
-web.run_app(app, port=8000)
+web.run_app(app, port=7999)
 
 
 

@@ -2,6 +2,7 @@ import sys
 import os
 import requests
 import base64
+import json
 
 def check_if_file(path):
     # check if the path is a path to file
@@ -111,6 +112,13 @@ def cat(url, path):
     else:
         print('Error: ' + path + ' is a directory.')
 
+def create(url, path, data):
+    if check_exist(url, path):
+        data = json.loads(data)
+        r = requests.patch(url + path + '.json', json=data)
+    else:
+        print('Error: no such file.')
+
 def put(url, local_path, edfs_path):
     # uploads a file from the local file system to EDFS
     if check_exist(url, edfs_path):
@@ -151,9 +159,9 @@ def get(url, edfs_path, local_path):
     else:
         print('Error: ' + edfs_path + ' is a directory.')
 
+
 def main():
     url = 'https://project-4de1a-default-rtdb.firebaseio.com/'
-    # url = 'https://dsci551-default-a0090-default-rtdb.firebaseio.com'
     # check if the command start with -
     command = sys.argv[1]
     if not command.startswith('-'):
@@ -209,6 +217,14 @@ def main():
                 else:
                     print('Error: no such local directory.')
                     exit(0)
+    elif command =='-create':
+        print("**")
+        if len(sys.argv) != 4:
+            print('Error: command is not following the execution format.')
+            exit(0)
+        path = sys.argv[2]
+        data = sys.argv[3]
+        create(url, path, data)
     else:
         print('Error: no such command.')
 

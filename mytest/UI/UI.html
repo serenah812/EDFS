@@ -6,6 +6,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>EDFS</title>
 	<style>
+		.file {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .file img {
+            width: 100px;
+        }
 		* {
 		  box-sizing: border-box;
 		}
@@ -57,7 +66,6 @@
 		  	background-color: #EAEDED;
 		  	color: #2E86C1;
 		}
-
 
 		#header {
 			border-radius: 10px 10px 0 0;
@@ -149,10 +157,15 @@
 	<input type="file" id="fileInput">
 	<br>
 	<button onclick="handleFile()">Upload</button><br>
-	
+		<pre id="fileData"></pre>
 	<h2>Uploaded file content:</h2>
-	<pre id="fileData"></pre>
-	<button onclick="sendFileContent()">Send File Content</button>
+		<p>block size:</p>
+		<input id = "blocksize" type="text" value="128MB">
+		<p>Replication:</p>
+		<input id = "replication" type="text" value="1">
+		<br>
+
+		<button onclick="sendFileContent()">Send File Content</button>
 	<p id="response"> </p>
 	</div>
 
@@ -161,20 +174,53 @@
 	<p>Supported Commands: -ls, -rm, -put, -get, -mkdir, -rmdir, -cat.</p>
 	<input type="text" id="inputData" placeholder="edfs -ls /user">
 	<br>
-	<button onclick="sendData()">Send</button>
+	<button onclick="sendShellData()">Send</button>
 	<h3>Output:</h3>
 	<div class="output_box">
 		<p id="outputText"></p>
 	</div>
+		<button onclick="downloadFile()">download file</button>
 	</div>
-
+	<div id="file-list"></div>
 	<script>
-		let fileContent = '';
+		// 发送请求获取后端数据
+        const fileList = document.getElementById('file-list');
+        window.onload = function() {
+			$.ajax({
+				type: 'POST',
+				url: 'http://localhost:7999/shell',
+				data: JSON.stringify({ 'command': 'edfs -ls /MetaData' }),
+				contentType: 'application/json',
+				success: function(response) {
+					// 将后端返回的数据解析为 JavaScript 数组，并遍历其中的每个文件名。
+					const data = JSON.parse(response);
+					const fileList = Array.isArray(data.fileName) ? data.fileName : [data.fileName];
+					const dataArray = Object.values(data)
+					console.log(data)
+					dataArray.forEach(fileName => {
+						// 对于每个文件名，创建一个新的 div 元素，其 class 属性为 "file"，并添加一个 img 元素和一个 div 元素。
+						const fileEl = document.createElement('div');
+						fileEl.classList.add('file');
+						const imgEl = document.createElement('img');
+						imgEl.src = `/icons/file.png`;
+						fileEl.appendChild(imgEl);
+						const nameEl = document.createElement('div');
+						nameEl.innerText = fileName;
+						fileEl.appendChild(nameEl);
+						fileList.appendChild(fileEl);
+                });
+            }
+			});
+        };
 
+
+		let fileContent = '';
+		let fileName = '';
 		function handleFile() {
 			const file = document.getElementById("fileInput").files[0];
+			// var fileInput = document.getElementById('fileInput');
+        	fileName = file.name;
 			const reader = new FileReader();
-
 			reader.onload = function(event) {
 				fileContent = event.target.result;
 				document.getElementById("fileData").textContent = fileContent;
@@ -183,12 +229,41 @@
 			reader.readAsText(file);
 		}
 
+		function downloadFile() {
+		  // 获取要下载的内容
+		  const content = document.getElementById("outputText").innerHTML;
+
+		  // 创建一个新的Blob对象，用于存储文本内容
+		  const blob = new Blob([content], { type: "text/plain" });
+
+		  // 创建一个下载链接
+		  const url = URL.createObjectURL(blob);
+
+		  // 创建一个新的a标签，设置下载链接和文件名
+		  const a = document.createElement("a");
+		  a.href = url;
+		  a.download = "myfile.txt";
+
+		  // 将a标签添加到文档中，并模拟点击
+		  document.body.appendChild(a);
+		  a.click();
+
+		  // 清理资源
+		  URL.revokeObjectURL(url);
+		  document.body.removeChild(a);
+		}
+
 		function sendFileContent() {
+			const blocksize = document.getElementById("blocksize").value
+			const replication = document.getElementById("replication").value
+			// console.log(blocksize)
 			$.ajax({
 				type: 'POST',
-				// url: '/upload',
 				url: 'http://localhost:8000/upload',
-				data: JSON.stringify({ 'content': fileContent }),
+				data: JSON.stringify({  'content': fileContent,
+										'filename': fileName,
+										'replication':replication,
+										'blocksize':blocksize}),
 				contentType: 'application/json',
 				success: function(response) {
 					console.log($('#response').text(response));
@@ -196,11 +271,11 @@
 			});
 		}
 
-		function sendData() {
+		function sendShellData() {
 			const data = document.getElementById("inputData").value;
 			$.ajax({
 				type: 'POST',
-				url: 'http://localhost:8000/upload',
+				url: 'http://localhost:7999/shell',
 				data: JSON.stringify({ 'command': data }),
 				contentType: 'application/json',
 				success: function(response) {
