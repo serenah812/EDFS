@@ -74,7 +74,7 @@ def split_content(s,num_bytes):
     return result
 
 async def handle_client(reader, writer):
-    data = await reader.read(1000)
+    data = await reader.read()
     message = data.decode()
     print(message)
     message = json.loads(message)
@@ -105,7 +105,7 @@ async def handle_client(reader, writer):
         Block_byte = 1
         if(blocksize =='128MB'):
             # Block_byte = 1073741824
-            Block_byte = 5
+            Block_byte = 50000
         BlockNum = divide_ceil(bytes_num, Block_byte)
         blocks = {}
         Blocks = 3

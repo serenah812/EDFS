@@ -18,6 +18,7 @@ async def tcp_client(message):
 # 前端获取上传的文件的数据
 async def handle_upload(request):
     data = await request.json()
+    print(data)
     content = data.get('content')
     filename = data.get('filename')
     replication = data.get('replication')
@@ -31,7 +32,7 @@ async def handle_upload(request):
     dict['replication'] = replication
     dict['blocksize'] = blocksize
     await tcp_client(dict)
-    return web.Response(text=dict)
+    return web.Response(text="success")
 
 #配置webapp接受前端数据
 app = web.Application()
