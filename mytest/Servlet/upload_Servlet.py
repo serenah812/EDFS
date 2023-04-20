@@ -27,7 +27,7 @@ async def handle_upload(request):
     dict = {}
     dict['type'] = 'upload'
     dict['content'] = content
-    filename = filename.replace(".", "-")
+    # filename = filename.replace(".", "-")
     dict['filename'] = filename
     dict['replication'] = replication
     dict['blocksize'] = blocksize

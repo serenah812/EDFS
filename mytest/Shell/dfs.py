@@ -1,7 +1,6 @@
 import sys
 import os
 import requests
-import base64
 import json
 
 def check_if_file(path):
@@ -13,15 +12,11 @@ def check_if_file(path):
 
 def encoding(s):
     # return the encoded string
-    return base64.b64encode(s.encode()).decode()
+    return s.replace(".", "-")
 
 def decoding_if_file(s):
-    try:
-        # decoding if the string is encoded
-        return base64.b64decode(s).decode()
-    except:
-        # if error incurred, means that the string is not encoded, return the original string
-        return s
+    # decoding if the string is encoded
+    return s.replace("-", ".")
 
 def check_exist(url, path):
     # check if the path is a path to file
@@ -93,8 +88,8 @@ def rm(url, path):
             path = path[:path.rfind('/')] + '/' + encoding(path[path.rfind('/') + 1:])
             r = requests.delete(url + path + '.json')
             if path.count('/') > 1:
-                    parent_path = path[:path.rfind('/')]
-                    mkdir(url, parent_path)
+                parent_path = path[:path.rfind('/')]
+                mkdir(url, parent_path)
         else:
             print('Error: no such file.')
     else:
@@ -105,19 +100,35 @@ def cat(url, path):
     if check_if_file(path) == 'file':
         if check_exist(url, path):
             path = path[:path.rfind('/')] + '/' + encoding(path[path.rfind('/') + 1:])
+            file_name_encoded = encoding(path[path.rfind('/') + 1:])
             r = requests.get(url + path + '.json').json()
-            print(r)
+            
+            block_dict = {}
+            for k, v in r.items():
+                if k != 'BlockNumber' and k != 'Replication':
+                    block_value = requests.get(url + '/' + v + '/' + file_name_encoded + '.json').json()
+                    block_dict.update(block_value)
+            
+            file_content = ''
+            for i in range(len(block_dict)):
+                file_content = file_content + str(block_dict['Block'+str(i)])
+            print(file_content)
+            
         else:
             print('Error: no such file.')
     else:
         print('Error: ' + path + ' is a directory.')
 
 def create(url, path, data):
-    if check_exist(url, path):
-        data = json.loads(data)
-        r = requests.patch(url + path + '.json', json=data)
+    if check_if_file(path) == 'file':
+        file_path_encoded = encoding(path)
+        if check_exist(url, path):
+            data = json.loads(data)
+            r = requests.patch(url + file_path_encoded + '.json', json=data)
+        else:
+            print('Error: no such file.')
     else:
-        print('Error: no such file.')
+        print('Error: ' + path + ' is a directory.')
 
 def put(url, local_path, edfs_path):
     # uploads a file from the local file system to EDFS
@@ -226,6 +237,11 @@ def main():
         path = sys.argv[2]
         data = sys.argv[3]
         create(url, path, data)
+    elif command == '-createDataNode':
+        path = sys.argv[2]
+        result = mkdir(url, path)
+        if result != '':
+            print(result)
     else:
         print('Error: no such command.')
 
