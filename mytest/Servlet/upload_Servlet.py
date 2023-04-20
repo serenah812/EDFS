@@ -12,13 +12,12 @@ async def tcp_client(message):
     message = json.dumps(message)
     writer.write(message.encode())
     await writer.drain()
-    data = await reader.read(1000)
+    data = await reader.read(100000)
     return data.decode()
 
 # 前端获取上传的文件的数据
 async def handle_upload(request):
     data = await request.json()
-    print(data)
     content = data.get('content')
     filename = data.get('filename')
     replication = data.get('replication')

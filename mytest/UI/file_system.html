@@ -52,19 +52,6 @@
 			<!-- MAIN CONTENT -->
 			<div class="main-content">
 				<div class="container-fluid">
-					<!-- OVERVIEW -->
-<!--					<div class="panel panel-headline">-->
-<!--						<div class="panel-heading">-->
-<!--							<h3>Overview</h3>-->
-<!--						</div>-->
-<!--						<div class="panel-body">-->
-<!--							<p>The goal of our project is to emulate the Hadoop Distributed File System (HDFS) and create a functional Emulating HDFS (EDFS). </p>-->
-<!--							<p>Lorem ipsum dolor sit amet. Ut maxime galisum in officia enim eos ipsum sunt. Ut consequatur consequuntur ea dolor ipsum ut reprehenderit nemo eum velit repudiandae hic dolore impedit. Et dolor cumque quo magnam dolores est eaque quisquam.</p>-->
-<!--							<p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus</p>-->
-<!--						</div>-->
-<!--							-->
-<!--					</div>-->
-					<!-- END OVERVIEW -->
 					<div class="panel">
 						<div class="panel-heading">
 							<h3>Upload file</h3>
@@ -79,9 +66,49 @@
 							<h4>Replication:</h4>
 							<input id = "replication" type="text" class="form-control" value="1">
 							<br>
-							<button onclick="sendFileContent()" type="button" class="btn btn-primary">Send File Content</button>
+							<button onclick="sendFileContent()" type="button" class="btn btn-primary">Upload File Content</button>
 							<p id="response"> </p>
 						</div>
+<!--						<div id="file-list"></div>-->
+						<!-- BASIC TABLE -->
+							<div class="panel">
+								<div class="panel-heading">
+									<h3 class="panel-title">file Table</h3>
+								</div>
+								<div class="panel-body">
+									<table class="table" id="table">
+										<thead>
+											<tr>
+												<th>#</th>
+												<th>File Name</th>
+												<th>Block Number</th>
+												<th>Replication</th>
+												<th>Block Infomation</th>
+												<th>Download File</th>
+											</tr>
+										</thead>
+										<tbody>
+<!--											<tr>-->
+<!--												<td>1</td>-->
+<!--												<td>test.txt</td>-->
+<!--												<td>12</td>-->
+<!--												<td>1</td>-->
+<!--												<td>1</td>-->
+<!--												<td>1</td>-->
+<!--											</tr>-->
+<!--											<tr>-->
+<!--												<td>2</td>-->
+<!--												<td>test.txt</td>-->
+<!--												<td>12</td>-->
+<!--												<td>1</td>-->
+<!--												<td>1</td>-->
+<!--												<td>1</td>-->
+<!--											</tr>-->
+										</tbody>
+									</table>
+								</div>
+							</div>
+						<!-- END BASIC TABLE -->
 					</div>
 				</div>
 			</div>
@@ -94,7 +121,7 @@
 	<!-- Javascript -->
 	<script>
 		// 发送请求获取后端数据
-        const fileList = document.getElementById('file-list');
+        let fileList = document.getElementById('file-list');
         window.onload = function() {
 			$.ajax({
 				type: 'POST',
@@ -104,36 +131,47 @@
 				success: function(response) {
 					// 将后端返回的数据解析为 JavaScript 数组，并遍历其中的每个文件名。
 					const data = JSON.parse(response);
-					const fileList = Array.isArray(data.fileName) ? data.fileName : [data.fileName];
+					// fileList = Array.isArray(data.fileName) ? data.fileName : [data.fileName];
 					const dataArray = Object.values(data)
-					console.log(data)
 					dataArray.forEach(fileName => {
 						// 对于每个文件名，创建一个新的 div 元素，其 class 属性为 "file"，并添加一个 img 元素和一个 div 元素。
 						const fileEl = document.createElement('div');
+						// fileEl.setAttribute("class", "my-div ");
+
 						fileEl.classList.add('file');
 						const imgEl = document.createElement('img');
-						imgEl.src = `/icons/file.png`;
+						imgEl.src = `./assets/icons/img.png`;
 						fileEl.appendChild(imgEl);
-						const nameEl = document.createElement('div');
+						const nameEl = document.createElement('p');
+						nameEl.setAttribute("class", "my-div ");
+
 						nameEl.innerText = fileName;
 						fileEl.appendChild(nameEl);
+						console.log(fileEl)
 						fileList.appendChild(fileEl);
                 });
             }
 			});
         };
 
-		// function handleFile() {
-		// 	const file = document.getElementById("fileInput").files[0];
-		// 	// var fileInput = document.getElementById('fileInput');
-        // 	fileName = file.name;
-		// 	const reader = new FileReader();
-		// 	reader.onload = function(event) {
-		// 		fileContent = event.target.result;
-		// 		document.getElementById("fileData").textContent = fileContent;
-		// 	};
-		// 	reader.readAsText(file);
-		// }
+        window.onload = function() {
+			$.ajax({
+				type: 'POST',
+				url: 'http://localhost:7999/shell',
+				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls /MetaData' }),
+				contentType: 'application/json',
+				success: function(data) {
+					// 成功获取数据后，在表格中添加行
+					  var tbody = $("#table");
+					  // 循环遍历数据，创建新行并添加到表格中
+					  $.each(data, function(index, item) {
+						var row = "<tr><td>" + item.filename + "</td><tr>";
+						tbody.append(row);
+					  });
+
+					}
+			});
+        };
 
 		function downloadFile() {
 		  // 获取要下载的内容
@@ -182,21 +220,6 @@
 				});
 			};
 			reader.readAsText(file);
-		}
-
-		function sendShellData() {
-			const data = document.getElementById("inputData").value;
-			$.ajax({
-				type: 'POST',
-				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'command': data }),
-				contentType: 'application/json',
-				success: function(response) {
-					const output = document.getElementById('outputText');
-					output.innerHTML = response;
-					// console.log($('#response').text(response));
-				}
-			});
 		}
 	</script>
 	<script src="assets/vendor/jquery/jquery.min.js"></script>

@@ -3,7 +3,18 @@ import aiohttp_cors
 import asyncio
 from aiohttp import web
 import tracemalloc
+import ast
 tracemalloc.start()
+
+def to_json(key, value):
+    # 构建一个字典，包含指定的key-value
+    data = {key: value}
+
+    # 使用json.dumps函数将字典转换为JSON格式
+    json_data = json.dumps(data)
+
+    return json_data
+
 
 # 数据传输给服务器
 async def tcp_client(message):
@@ -11,7 +22,7 @@ async def tcp_client(message):
     message = json.dumps(message)
     writer.write(message.encode())
     await writer.drain()
-    data = await reader.read(100)
+    data = await reader.read(100000)
     return data.decode()
 
 # 前端获取Command
@@ -22,10 +33,24 @@ async def handle_upload(request):
     dict = {}
     dict['type'] = 'shell'
     dict['command'] = command
+    print(dict)
     output = await tcp_client(dict)
-    # if(command == 'edfs -ls /MetaData'):
-    #     output =json.dumps({'fileName':'text.txt'})
-    return web.Response(text=output)
+    if(data.get('content') == 'fileinfo'):
+        res= []
+        file_list_str = output
+        file_list_str = file_list_str.strip()
+        file_list = ast.literal_eval(file_list_str)
+
+        for filename in file_list:
+            comm = command + "/" + filename
+            print(comm)
+            res.append(to_json("filename", filename))
+        print(res)
+        res = '{"filename": "test-txt"}', '{"filename": "test2-txt"}', '{"filename": "user"}'
+        res = json.dumps(res)
+        return web.Response(text=res)
+    else:
+        return web.Response(text=output)
 
 #配置webapp接受前端数据
 app = web.Application()

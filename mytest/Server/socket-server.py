@@ -74,7 +74,7 @@ def split_content(s,num_bytes):
     return result
 
 async def handle_client(reader, writer):
-    data = await reader.read()
+    data = await reader.read(100000)
     message = data.decode()
     print(message)
     message = json.loads(message)
@@ -90,7 +90,6 @@ async def handle_client(reader, writer):
             try:
                 result = subprocess.run(args, capture_output=True, text=True)
                 writer.write(result.stdout.encode())
-                print(result.stdout)
             except Exception as e:
                 print(e)
 

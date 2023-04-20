@@ -98,47 +98,6 @@
 	<!-- Javascript -->
 	<script>
 		// 发送请求获取后端数据
-        const fileList = document.getElementById('file-list');
-        window.onload = function() {
-			$.ajax({
-				type: 'POST',
-				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'command': 'edfs -ls /MetaData' }),
-				contentType: 'application/json',
-				success: function(response) {
-					// 将后端返回的数据解析为 JavaScript 数组，并遍历其中的每个文件名。
-					const data = JSON.parse(response);
-					const fileList = Array.isArray(data.fileName) ? data.fileName : [data.fileName];
-					const dataArray = Object.values(data)
-					console.log(data)
-					dataArray.forEach(fileName => {
-						// 对于每个文件名，创建一个新的 div 元素，其 class 属性为 "file"，并添加一个 img 元素和一个 div 元素。
-						const fileEl = document.createElement('div');
-						fileEl.classList.add('file');
-						const imgEl = document.createElement('img');
-						imgEl.src = `/icons/file.png`;
-						fileEl.appendChild(imgEl);
-						const nameEl = document.createElement('div');
-						nameEl.innerText = fileName;
-						fileEl.appendChild(nameEl);
-						fileList.appendChild(fileEl);
-                });
-            }
-			});
-        };
-
-		// function handleFile() {
-		// 	const file = document.getElementById("fileInput").files[0];
-		// 	// var fileInput = document.getElementById('fileInput');
-        // 	fileName = file.name;
-		// 	const reader = new FileReader();
-		// 	reader.onload = function(event) {
-		// 		fileContent = event.target.result;
-		// 		document.getElementById("fileData").textContent = fileContent;
-		// 	};
-		// 	reader.readAsText(file);
-		// }
-
 		function downloadFile() {
 		  // 获取要下载的内容
 		  const content = document.getElementById("outputText").innerHTML;
@@ -163,37 +122,12 @@
 		  document.body.removeChild(a);
 		}
 
-		function sendFileContent() {
-			const file = document.getElementById("fileInput").files[0];
-			const fileName = file.name;
-			const reader = new FileReader();
-			let fileContent = ''
-			reader.onload = function(event) {
-				fileContent = event.target.result;
-				const blocksize = document.getElementById("blocksize").value
-				const replication = document.getElementById("replication").value
-				$.ajax({
-					type: 'POST',
-					url: 'http://localhost:8000/upload',
-					data: JSON.stringify({  'content': fileContent,
-											'filename': fileName,
-											'replication':replication,
-											'blocksize':blocksize}),
-					contentType: 'application/json',
-					success: function(response) {
-						console.log($('#response').text(response));
-					}
-				});
-			};
-			reader.readAsText(file);
-		}
-
 		function sendShellData() {
 			const data = document.getElementById("inputData").value;
 			$.ajax({
 				type: 'POST',
 				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'command': data }),
+				data: JSON.stringify({ 'content':'shell','command': data }),
 				contentType: 'application/json',
 				success: function(response) {
 					const output = document.getElementById('outputText');
