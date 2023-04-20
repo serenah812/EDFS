@@ -172,30 +172,31 @@ def main():
             print('Error: command is not following the execution format.')
             exit(0)
         else:
-            edfs_path = sys.argv[2]
             # check if the path is absolute path
-            if not edfs_path.startswith('/'):
+            if not sys.argv[2].startswith('/'):
                 print('Error: path is required to be start with \'/\'.')
                 exit(0)
-            elif command == '-ls':
-                print(ls(url, edfs_path))
-            elif command == '-rm':
-                rm(url, edfs_path)
-            elif command == '-mkdir':
-                result = mkdir(url, edfs_path)
-                if result != '':
-                    print(result)
-            elif command == '-rmdir':
-                rmdir(url, edfs_path)
-            elif command == '-cat':
-                cat(url, edfs_path)
+            else: 
+                edfs_path = sys.argv[2][0] + 'MetaData/' + sys.argv[2][1:]
+                if command == '-ls':
+                    print(ls(url, edfs_path))
+                elif command == '-rm':
+                    rm(url, edfs_path)
+                elif command == '-mkdir':
+                    result = mkdir(url, edfs_path)
+                    if result != '':
+                        print(result)
+                elif command == '-rmdir':
+                    rmdir(url, edfs_path)
+                elif command == '-cat':
+                    cat(url, edfs_path)
     elif command in ['-put', '-get']:
         if len(sys.argv) != 4:
             print('Error: command is not following the execution format.')
             exit(0)
         elif command == '-put':
             local_path = sys.argv[2]
-            edfs_path = sys.argv[3]
+            edfs_path = sys.argv[3][0] + 'MetaData/' + sys.argv[3][1:]
             if not edfs_path.startswith('/'):
                 print('Error: path is required to be start with \'/\'.')
                 exit(0)
@@ -207,7 +208,7 @@ def main():
                     exit(0)
         elif command == '-get':
             local_path = sys.argv[3]
-            edfs_path = sys.argv[2]
+            edfs_path = sys.argv[2][0] + 'MetaData/' + sys.argv[2][1:]
             if not edfs_path.startswith('/'):
                 print('Error: path is required to be start with \'/\'.')
                 exit(0)
