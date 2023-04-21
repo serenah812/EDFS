@@ -86,10 +86,21 @@ def rm(url, path):
     if check_if_file(path) == 'file':
         if check_exist(url, path):
             path = path[:path.rfind('/')] + '/' + encoding(path[path.rfind('/') + 1:])
-            r = requests.delete(url + path + '.json')
+            file_name_encoded = encoding(path[path.rfind('/') + 1:])
+
+            # remove the blocks in DataNode
+            r = requests.get(url + path + '.json').json()
+            for k, v in r.items():
+                if k != 'BlockNumber' and k != 'Replication':
+                    datanode_path = '/' + v
+                    requests.delete(url + datanode_path + '/' + file_name_encoded + '.json')
+                    mkdir(url, datanode_path)
+
+            # remove the file from MetaData
+            requests.delete(url + path + '.json')
             if path.count('/') > 1:
-                parent_path = path[:path.rfind('/')]
-                mkdir(url, parent_path)
+                dir_path = path[:path.rfind('/')]
+                mkdir(url, dir_path)
         else:
             print('Error: no such file.')
     else:
@@ -103,21 +114,22 @@ def cat(url, path):
             file_name_encoded = encoding(path[path.rfind('/') + 1:])
             r = requests.get(url + path + '.json').json()
             
+            # get block contents from each DataNode
             block_dict = {}
             for k, v in r.items():
                 if k != 'BlockNumber' and k != 'Replication':
                     block_value = requests.get(url + '/' + v + '/' + file_name_encoded + '.json').json()
                     block_dict.update(block_value)
             
+            # concat the block contents
             file_content = ''
             for i in range(len(block_dict)):
                 file_content = file_content + str(block_dict['Block'+str(i)])
-            print(file_content)
-            
+            return file_content
         else:
-            print('Error: no such file.')
+            return 'Error: no such file.'
     else:
-        print('Error: ' + path + ' is a directory.')
+        return 'Error: ' + path + ' is a directory.'
 
 def create(url, path, data):
     if check_if_file(path) == 'file':
@@ -159,17 +171,15 @@ def get(url, edfs_path, local_path):
             file_name = decoding_if_file(edfs_path[edfs_path.rfind('/') + 1:])
             file_path = os.path.join(local_path, file_name)
             if os.path.exists(file_path):
-                print('Error: file with the same name already exists.')
+                print('Error: file with the same name already exists at local.')
             else:
-                edfs_path = edfs_path[:edfs_path.rfind('/')] + '/' + encoding(edfs_path[edfs_path.rfind('/') + 1:])
                 with open(file_path, 'w+') as f:
-                    file_content = requests.get(url + edfs_path + '.json').json()
+                    file_content = cat(url, edfs_path)
                     f.write(file_content)
         else:
             print('Error: no such file in EDFS.')
     else:
         print('Error: ' + edfs_path + ' is a directory.')
-
 
 def main():
     url = 'https://project-4de1a-default-rtdb.firebaseio.com/'
@@ -178,6 +188,7 @@ def main():
     if not command.startswith('-'):
         print('Error: command is required to be starts with \'-\'.')
         exit(0)
+
     elif command in ['-ls', '-rm', '-mkdir', '-rmdir', '-cat']:
         if len(sys.argv) != 3:
             print('Error: command is not following the execution format.')
@@ -200,7 +211,8 @@ def main():
                 elif command == '-rmdir':
                     rmdir(url, edfs_path)
                 elif command == '-cat':
-                    cat(url, edfs_path)
+                    print(cat(url, edfs_path))
+                    
     elif command in ['-put', '-get']:
         if len(sys.argv) != 4:
             print('Error: command is not following the execution format.')
@@ -229,6 +241,7 @@ def main():
                 else:
                     print('Error: no such local directory.')
                     exit(0)
+
     elif command =='-create':
         print("**")
         if len(sys.argv) != 4:
@@ -237,11 +250,13 @@ def main():
         path = sys.argv[2]
         data = sys.argv[3]
         create(url, path, data)
+
     elif command == '-createDataNode':
         path = sys.argv[2]
         result = mkdir(url, path)
         if result != '':
             print(result)
+
     else:
         print('Error: no such command.')
 
