@@ -45,22 +45,34 @@ async def handle_upload(request):
             dictt['type'] = 'shell'
             dictt['command'] = comm
             outputt = await tcp_client(dictt)
-            blockinfo = []
-            for i in outputt.split('\n'):
-                text = i.split()
-                if len(text) >= 2:
-                    if(text[0]=='BlockNumber:'):
-                        blocknumber = text[1]
-                    elif(text[0]=='Replication:'):
-                        replication = text[1]
-                    else:
-                        blockinfo.append(i)
-            data = {
-                'filename': filename,
-                'blocknumber': blocknumber,
-                'replication': replication,
-                'blockinfo': blockinfo
-            }
+            blockinfo = {}
+            cnt = 0
+            if "Error" in outputt:
+                data = {
+                    'filename': filename,
+                    'type': "directory",
+                    'blocknumber': "-",
+                    'replication': "-",
+                    'blockinfo': "-"
+                }
+            else:
+                for i in outputt.split('\n'):
+                    text = i.split()
+                    if len(text) >= 2:
+                        if(text[0]=='BlockNumber:'):
+                            blocknumber = text[1]
+                        elif(text[0]=='Replication:'):
+                            replication = text[1]
+                        else:
+                            blockinfo[cnt]={text[0]:text[1]}
+                            cnt = cnt + 1
+                data = {
+                    'filename': filename,
+                    'type': "file",
+                    'blocknumber': blocknumber,
+                    'replication': replication,
+                    'blockinfo': blockinfo
+                }
             res.append(data)
         res = json.dumps(res)
         return web.Response(text=res)

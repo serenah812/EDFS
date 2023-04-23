@@ -66,8 +66,11 @@
 							<h4>Replication:</h4>
 							<input id = "replication" type="text" class="form-control" value="1">
 							<br>
-							<button onclick="sendFileContent()" type="button" class="btn btn-primary">Upload File Content</button>
 							<p id="response"> </p>
+							<input id = "dir" type="text" class="form-control" value="/">
+							<br>
+							<button onclick="sendFileContent()" type="button" class="btn btn-primary">Upload File Content</button>
+							<button onclick="listt()" type="button" class="btn btn-primary">Show</button>
 						</div>
 <!--						<div id="file-list"></div>-->
 						<!-- BASIC TABLE -->
@@ -80,30 +83,15 @@
 										<thead>
 											<tr>
 												<th>#</th>
-												<th>File Name</th>
+												<th>Name</th>
+												<th>Type</th>
 												<th>Block Number</th>
 												<th>Replication</th>
 												<th>Block Infomation</th>
-												<th>Download File</th>
+												<th>Download File/View</th>
 											</tr>
 										</thead>
 										<tbody>
-<!--											<tr>-->
-<!--												<td>1</td>-->
-<!--												<td>test.txt</td>-->
-<!--												<td>12</td>-->
-<!--												<td>1</td>-->
-<!--												<td>1</td>-->
-<!--												<td>1</td>-->
-<!--											</tr>-->
-<!--											<tr>-->
-<!--												<td>2</td>-->
-<!--												<td>test.txt</td>-->
-<!--												<td>12</td>-->
-<!--												<td>1</td>-->
-<!--												<td>1</td>-->
-<!--												<td>1</td>-->
-<!--											</tr>-->
 										</tbody>
 									</table>
 								</div>
@@ -121,20 +109,28 @@
 	<!-- Javascript -->
 	<script>
 		// 发送请求获取后端数据
+		const tbody = $("#table");
         let fileList = document.getElementById('file-list');
+        let dir = document.getElementById('dir').value;
+		var cnt = 1
+		function listt() {
+			dir = document.getElementById('dir').value;
+			cnt = 1
+			// tbody.find("tr:not(:first-child)").remove();
+			tbody.find('tr').not(':first').remove();
+			myFunction();
+		}
+		function myFunction() {
 
-        window.onload = function() {
 			$.ajax({
 				type: 'POST',
 				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls /' }),
+				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls '+ dir }),
 				contentType: 'application/json',
 				success: function(data) {
 					var data = JSON.parse(data);
 					console.log(data)
 					// 成功获取数据后，在表格中添加行
-					var tbody = $("#table");
-					var cnt = 1
 					$.each(data, function(entityName, entity) {
 					  // 获取所有属性的列表
 						var keys = Object.keys(entity);
@@ -142,15 +138,15 @@
 						var CountCell = $('<td>').text(cnt);
 						row.append(CountCell);
 						$.each(keys, function(index, key) {
-							console.log(key)
-							if(key != "blockinfo"){
+							if(key != "blockinfo" || entity[key]=='-'){
 								var valueCell = $('<td>').text(entity[key]);
 								row.append(valueCell);
-							}else{
+							}
+							else{
 							var buttonC = $('<td>');
 							var butt = $('<button>').text('Show');
 							butt.click(function(){
-								alert(entity[key]);
+								blockinfo(entity[key])
 							})
 							buttonC.append(butt);
 							row.append(buttonC);
@@ -158,10 +154,14 @@
 						});
 						var buttonCell = $('<td>');
 						var button = $('<button>').text('Download');
-						button.click(function() {
+						var button2 = $('<button>').text('View');
+						var column2 = row.find('td:nth-child(2)').text();
+						var column3 = row.find('td:nth-child(3)').text();
+
+						if(column3!='directory'){
+							button.click(function() {
 						  //从该行中提取所需信息
 						  var column1 = row.find('td:nth-child(1)').text();
-						  var column2 = row.find('td:nth-child(2)').text();
 						  //创建一个包含所提取信息的对象
 						  var data = { column1: column1, column2: column2 };
 						  console.log(data)
@@ -203,13 +203,29 @@
 						});
 						buttonCell.append(button);
 						row.append(buttonCell);
+						}else {
+							button2.click(function() {
+								dir = dir + column2;
+								cnt = 1
+								tbody.find('tr').not(':first').remove();
+								myFunction();
+							})
+						buttonCell.append(button2);
+						row.append(buttonCell);
+						}
 					    tbody.append(row);
 						cnt = cnt + 1
 					});
 					}
 			});
+      }
+        function blockinfo(data){
+			console.log(data)
+			window.location.href = "blockinfo.html";
+		}
+	  	window.onload = function() {
+			myFunction();
         };
-
 		function sendFileContent() {
 			const file = document.getElementById("fileInput").files[0];
 			const filePath = '/'
