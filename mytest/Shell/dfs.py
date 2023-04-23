@@ -147,20 +147,19 @@ def put(url, local_path, edfs_path):
     if check_exist(url, edfs_path):
         local_file_name = local_path[local_path.rfind('/')+1:]
         file_name_encoded = encoding(local_file_name)
-        if edfs_path.endswith('/'):
-            if check_exist(url, edfs_path+local_file_name):
-                print('Error: file already exists.')
-            else:
-                with open(local_path) as f:
-                    file_content = f.read()
-                r = requests.patch(url+edfs_path+'.json', json={file_name_encoded:file_content})
+
+        if check_exist(url, edfs_path+'/'+local_file_name):
+            print('Error: file already exists.')
         else:
-            if check_exist(url, edfs_path+'/'+local_file_name):
-                print('Error: file already exists.')
-            else:
-                with open(local_path) as f:
-                    file_content = f.read()
-                r = requests.patch(url+edfs_path+'.json', json={file_name_encoded:file_content})
+            with open(local_path) as f:
+                file_content = f.read()
+            data = {
+                'filename': file_name_encoded,
+                'content': file_content,
+                'replication': '1', 
+                'blocksize': '128MB' 
+                }
+            r = requests.post('http://localhost:8000/upload', json=data)
     else:
         print('Error: the parent directory does not exist in EDFS.')
 
