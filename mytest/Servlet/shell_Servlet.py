@@ -35,17 +35,20 @@ async def handle_upload(request):
     print(dict)
     output = await tcp_client(dict)
     if(data.get('content') == 'fileinfo'):
-        res= []
-        file_list_str = output
-        file_list_str = file_list_str.strip()
-        file_list = ast.literal_eval(file_list_str)
+        # res= []
+        # file_list_str = output
+        # file_list_str = file_list_str.strip()
+        # file_list = ast.literal_eval(file_list_str)
+        #
+        # for filename in file_list:
+        #     comm = command + "/" + filename
+        #     print(comm)
+        #     res.append(to_json("filename", filename))
+        # print(res)
 
-        for filename in file_list:
-            comm = command + "/" + filename
-            print(comm)
-            res.append(to_json("filename", filename))
-        print(res)
-        res = '{"filename": "test-txt"}', '{"filename": "test2-txt"}', '{"filename": "user"}'
+        res = [{"filename": "test-txt", "blocknum": "1","replication":"2"},
+               {"filename": "test-2txt", "blocknum": "2","replication":"2"}]
+
         res = json.dumps(res)
         return web.Response(text=res)
     else:

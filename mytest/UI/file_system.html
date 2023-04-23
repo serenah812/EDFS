@@ -161,14 +161,35 @@
 				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls /MetaData' }),
 				contentType: 'application/json',
 				success: function(data) {
+					var data = JSON.parse(data);
+					console.log(data)
 					// 成功获取数据后，在表格中添加行
-					  var tbody = $("#table");
-					  // 循环遍历数据，创建新行并添加到表格中
-					  $.each(data, function(index, item) {
-						var row = "<tr><td>" + item.filename + "</td><tr>";
-						tbody.append(row);
-					  });
+					var tbody = $("#table");
+					// // 循环遍历数据，创建新行并添加到表格中
+					// var cnt = 1
+					// $.each(data, function(key, value) {
+					// 	var row = "<tr><td>" + cnt + "</td><tr>";
+					// 	cnt = cnt + 1
+					// 	tbody.append(row);
+					// 	var row = "<tr><td>" + value.filename + "</td><tr>";
+					// 	tbody.append(row);
 
+					// });
+					var cnt = 1
+					$.each(data, function(entityName, entity) {
+					  // 获取所有属性的列表
+						var keys = Object.keys(entity);
+					    var row = $('<tr>');
+						var CountCell = $('<td>').text(cnt);
+						row.append(CountCell);
+						  $.each(keys, function(index, key) {
+							// var keyCell = $('<td>').text(key);
+							var valueCell = $('<td>').text(entity[key]);
+							row.append(valueCell);
+						  });
+					    tbody.append(row);
+						cnt = cnt + 1
+					});
 					}
 			});
         };
