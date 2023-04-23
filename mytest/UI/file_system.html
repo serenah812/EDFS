@@ -141,31 +141,59 @@
 					    var row = $('<tr>');
 						var CountCell = $('<td>').text(cnt);
 						row.append(CountCell);
-						  $.each(keys, function(index, key) {
-							// var keyCell = $('<td>').text(key);
-							var valueCell = $('<td>').text(entity[key]);
-							row.append(valueCell);
-						  });
+						$.each(keys, function(index, key) {
+							console.log(key)
+							if(key != "blockinfo"){
+								var valueCell = $('<td>').text(entity[key]);
+								row.append(valueCell);
+							}else{
+							var buttonC = $('<td>');
+							var butt = $('<button>').text('Show');
+							butt.click(function(){
+								alert(entity[key]);
+							})
+							buttonC.append(butt);
+							row.append(buttonC);
+						}
+						});
 						var buttonCell = $('<td>');
-
 						var button = $('<button>').text('Download');
 						button.click(function() {
 						  //从该行中提取所需信息
 						  var column1 = row.find('td:nth-child(1)').text();
 						  var column2 = row.find('td:nth-child(2)').text();
-
 						  //创建一个包含所提取信息的对象
 						  var data = { column1: column1, column2: column2 };
-
+						  console.log(data)
 						  //向后端发送请求
 						  $.ajax({
 							type: 'POST',
-							url: 'backend.php',
-							data: JSON.stringify(data),
+							url: 'http://localhost:7999/shell',
+							data: JSON.stringify({ 'command': 'edfs -cat /'+column2 }),
 							contentType: 'application/json',
 							success: function(response) {
 							  //处理响应
-							  console.log(response);
+							  // console.log(response);
+							  const content = response;
+
+							  // 创建一个新的Blob对象，用于存储文本内容
+							  const blob = new Blob([content], { type: "text/plain" });
+
+							  // 创建一个下载链接
+							  const url = URL.createObjectURL(blob);
+
+							  // 创建一个新的a标签，设置下载链接和文件名
+							  const a = document.createElement("a");
+							  a.href = url;
+							  a.download = "myfile.txt";
+
+							  // 将a标签添加到文档中，并模拟点击
+							  document.body.appendChild(a);
+							  a.click();
+
+							  // 清理资源
+							  URL.revokeObjectURL(url);
+							  document.body.removeChild(a);
 							},
 							error: function(xhr, status, error) {
 							  //处理错误
@@ -181,31 +209,6 @@
 					}
 			});
         };
-
-
-		function downloadFile() {
-		  // 获取要下载的内容
-		  const content = document.getElementById("outputText").innerHTML;
-
-		  // 创建一个新的Blob对象，用于存储文本内容
-		  const blob = new Blob([content], { type: "text/plain" });
-
-		  // 创建一个下载链接
-		  const url = URL.createObjectURL(blob);
-
-		  // 创建一个新的a标签，设置下载链接和文件名
-		  const a = document.createElement("a");
-		  a.href = url;
-		  a.download = "myfile.txt";
-
-		  // 将a标签添加到文档中，并模拟点击
-		  document.body.appendChild(a);
-		  a.click();
-
-		  // 清理资源
-		  URL.revokeObjectURL(url);
-		  document.body.removeChild(a);
-		}
 
 		function sendFileContent() {
 			const file = document.getElementById("fileInput").files[0];

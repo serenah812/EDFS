@@ -32,7 +32,6 @@ async def handle_upload(request):
     dict = {}
     dict['type'] = 'shell'
     dict['command'] = command
-    print(dict)
     output = await tcp_client(dict)
     if(data.get('content') == 'fileinfo'):
         res= []
@@ -42,18 +41,27 @@ async def handle_upload(request):
 
         for filename in file_list:
             dictt = {}
-            comm = 'edfs -cat /MetaData/' + filename
+            comm = 'edfs -blockMetadata /' + filename
             dictt['type'] = 'shell'
             dictt['command'] = comm
-            print(dictt)
             outputt = await tcp_client(dictt)
-            print(outputt)
-            res.append(to_json("filename", filename))
-        print(res)
-
-        # res = [{"filename": "test-txt", "blocknum": "1","replication":"2"},
-        #        {"filename": "test-2txt", "blocknum": "2","replication":"2"}]
-
+            blockinfo = []
+            for i in outputt.split('\n'):
+                text = i.split()
+                if len(text) >= 2:
+                    if(text[0]=='BlockNumber:'):
+                        blocknumber = text[1]
+                    elif(text[0]=='Replication:'):
+                        replication = text[1]
+                    else:
+                        blockinfo.append(i)
+            data = {
+                'filename': filename,
+                'blocknumber': blocknumber,
+                'replication': replication,
+                'blockinfo': blockinfo
+            }
+            res.append(data)
         res = json.dumps(res)
         return web.Response(text=res)
     else:
