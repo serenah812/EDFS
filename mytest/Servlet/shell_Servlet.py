@@ -10,9 +10,9 @@ def to_json(key, value):
     # 构建一个字典，包含指定的key-value
     data = {key: value}
     # 使用json.dumps函数将字典转换为JSON格式
-    json_data = json.dumps(data)
+    # json_data = json.dumps(data)
 
-    return json_data
+    return data
 
 
 # 数据传输给服务器
@@ -35,19 +35,24 @@ async def handle_upload(request):
     print(dict)
     output = await tcp_client(dict)
     if(data.get('content') == 'fileinfo'):
-        # res= []
-        # file_list_str = output
-        # file_list_str = file_list_str.strip()
-        # file_list = ast.literal_eval(file_list_str)
-        #
-        # for filename in file_list:
-        #     comm = command + "/" + filename
-        #     print(comm)
-        #     res.append(to_json("filename", filename))
-        # print(res)
+        res= []
+        file_list_str = output
+        file_list_str = file_list_str.strip()
+        file_list = ast.literal_eval(file_list_str)
 
-        res = [{"filename": "test-txt", "blocknum": "1","replication":"2"},
-               {"filename": "test-2txt", "blocknum": "2","replication":"2"}]
+        for filename in file_list:
+            dictt = {}
+            comm = 'edfs -cat /MetaData/' + filename
+            dictt['type'] = 'shell'
+            dictt['command'] = comm
+            print(dictt)
+            outputt = await tcp_client(dictt)
+            print(outputt)
+            res.append(to_json("filename", filename))
+        print(res)
+
+        # res = [{"filename": "test-txt", "blocknum": "1","replication":"2"},
+        #        {"filename": "test-2txt", "blocknum": "2","replication":"2"}]
 
         res = json.dumps(res)
         return web.Response(text=res)

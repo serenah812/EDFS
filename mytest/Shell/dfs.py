@@ -39,7 +39,7 @@ def ls(url, path):
     if check_if_file(path) == 'file':
         return 'Error: \'ls\' only list content under directory, ' + path + ' is a path to file.'
     # check if the directory exists
-    elif check_exist(url, path):
+    if check_exist(url, path):
         # check if the directory has content
         if type(r) is dict:
             for key in r.keys():

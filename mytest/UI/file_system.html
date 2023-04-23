@@ -122,59 +122,18 @@
 	<script>
 		// 发送请求获取后端数据
         let fileList = document.getElementById('file-list');
-        window.onload = function() {
-			$.ajax({
-				type: 'POST',
-				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'command': 'edfs -ls /MetaData' }),
-				contentType: 'application/json',
-				success: function(response) {
-					// 将后端返回的数据解析为 JavaScript 数组，并遍历其中的每个文件名。
-					const data = JSON.parse(response);
-					// fileList = Array.isArray(data.fileName) ? data.fileName : [data.fileName];
-					const dataArray = Object.values(data)
-					dataArray.forEach(fileName => {
-						// 对于每个文件名，创建一个新的 div 元素，其 class 属性为 "file"，并添加一个 img 元素和一个 div 元素。
-						const fileEl = document.createElement('div');
-						// fileEl.setAttribute("class", "my-div ");
-
-						fileEl.classList.add('file');
-						const imgEl = document.createElement('img');
-						imgEl.src = `./assets/icons/img.png`;
-						fileEl.appendChild(imgEl);
-						const nameEl = document.createElement('p');
-						nameEl.setAttribute("class", "my-div ");
-
-						nameEl.innerText = fileName;
-						fileEl.appendChild(nameEl);
-						console.log(fileEl)
-						fileList.appendChild(fileEl);
-                });
-            }
-			});
-        };
 
         window.onload = function() {
 			$.ajax({
 				type: 'POST',
 				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls /MetaData' }),
+				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls /' }),
 				contentType: 'application/json',
 				success: function(data) {
 					var data = JSON.parse(data);
 					console.log(data)
 					// 成功获取数据后，在表格中添加行
 					var tbody = $("#table");
-					// // 循环遍历数据，创建新行并添加到表格中
-					// var cnt = 1
-					// $.each(data, function(key, value) {
-					// 	var row = "<tr><td>" + cnt + "</td><tr>";
-					// 	cnt = cnt + 1
-					// 	tbody.append(row);
-					// 	var row = "<tr><td>" + value.filename + "</td><tr>";
-					// 	tbody.append(row);
-
-					// });
 					var cnt = 1
 					$.each(data, function(entityName, entity) {
 					  // 获取所有属性的列表
@@ -187,12 +146,42 @@
 							var valueCell = $('<td>').text(entity[key]);
 							row.append(valueCell);
 						  });
+						var buttonCell = $('<td>');
+
+						var button = $('<button>').text('Download');
+						button.click(function() {
+						  //从该行中提取所需信息
+						  var column1 = row.find('td:nth-child(1)').text();
+						  var column2 = row.find('td:nth-child(2)').text();
+
+						  //创建一个包含所提取信息的对象
+						  var data = { column1: column1, column2: column2 };
+
+						  //向后端发送请求
+						  $.ajax({
+							type: 'POST',
+							url: 'backend.php',
+							data: JSON.stringify(data),
+							contentType: 'application/json',
+							success: function(response) {
+							  //处理响应
+							  console.log(response);
+							},
+							error: function(xhr, status, error) {
+							  //处理错误
+							  console.error(error);
+							}
+						  });
+						});
+						buttonCell.append(button);
+						row.append(buttonCell);
 					    tbody.append(row);
 						cnt = cnt + 1
 					});
 					}
 			});
         };
+
 
 		function downloadFile() {
 		  // 获取要下载的内容
