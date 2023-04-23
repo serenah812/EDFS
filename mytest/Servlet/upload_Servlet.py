@@ -22,6 +22,8 @@ async def handle_upload(request):
     filename = data.get('filename')
     replication = data.get('replication')
     blocksize = data.get('blocksize')
+    filepath = data.get('filepath')
+    print(filepath)
     # 创建一个空字典,添加键值对
     dict = {}
     dict['type'] = 'upload'
@@ -30,6 +32,8 @@ async def handle_upload(request):
     dict['filename'] = filename
     dict['replication'] = replication
     dict['blocksize'] = blocksize
+    dict['filepath'] = filepath
+    print(dict)
     await tcp_client(dict)
     return web.Response(text="success")
 

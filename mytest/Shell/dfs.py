@@ -154,6 +154,7 @@ def put(url, local_path, edfs_path):
             with open(local_path) as f:
                 file_content = f.read()
             data = {
+                'filepath': edfs_path,
                 'filename': file_name_encoded,
                 'content': file_content,
                 'replication': '1', 
@@ -193,6 +194,27 @@ def blockMetadata(url, path):
     else:
         print('Error: ' + path + ' is a directory.')
 
+def blockData(url, path):
+    if check_if_file(path) == 'file':
+        if check_exist(url, path):
+            path = path[:path.rfind('/')] + '/' + encoding(path[path.rfind('/') + 1:])
+            file_name_encoded = encoding(path[path.rfind('/') + 1:])
+            r = requests.get(url + path + '.json').json()
+            block_dict = {}
+            for k, v in r.items():
+                if k != 'BlockNumber' and k != 'Replication':
+                    block_value = requests.get(url + '/' + v + '/' + file_name_encoded + '.json').json()
+                    block_dict.update(block_value)
+            
+            # concat the block contents
+            file_content = ''
+            for i in range(len(block_dict)):
+                file_content = file_content + str(block_dict['Block'+str(i)])
+        else:
+            print('Error: no such file in EDFS.')
+    else:
+        print('Error: ' + path + ' is a directory.')
+
 def main():
     url = 'https://project-4de1a-default-rtdb.firebaseio.com/'
     # check if the command start with -
@@ -226,6 +248,7 @@ def main():
                     print(cat(url, edfs_path))
                 elif command == '-blockMetadata':
                     blockMetadata(url, edfs_path)
+
                     
     elif command in ['-put', '-get']:
         if len(sys.argv) != 4:

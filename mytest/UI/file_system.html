@@ -209,6 +209,7 @@
 
 		function sendFileContent() {
 			const file = document.getElementById("fileInput").files[0];
+			const filePath = '/'
 			const fileName = file.name;
 			const reader = new FileReader();
 			let fileContent = ''
@@ -219,7 +220,8 @@
 				$.ajax({
 					type: 'POST',
 					url: 'http://localhost:8000/upload',
-					data: JSON.stringify({  'content': fileContent,
+					data: JSON.stringify({  'filepath': filePath,
+											'content': fileContent,
 											'filename': fileName,
 											'replication':replication,
 											'blocksize':blocksize}),

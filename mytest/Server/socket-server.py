@@ -11,11 +11,16 @@ def run_command(args):
     except Exception as e:
         print(e)
 
-def MetaData(filename,blocks,replication,BlockNum):
+def MetaData(filename,blocks,replication,BlockNum,filepath):
     pyfilename = '../Shell/dfs.py'
     # 输入文件名称
+    if filepath.startswith('/MetaData'):
+        filepath = filepath[9:]
+    if not filepath.endswith('/'):
+        filepath = filepath+'/'
+
     try:
-        args = ['python', pyfilename, '-mkdir', '/'+str(filename)]
+        args = ['python', pyfilename, '-mkdir', filepath+str(filename)]
         run_command(args)
     except Exception as e:
         print(e)
@@ -25,7 +30,7 @@ def MetaData(filename,blocks,replication,BlockNum):
     args = ['python',
             pyfilename,
             '-create',
-            '/MetaData/' + str(filename),
+            '/MetaData' + filepath + str(filename),
             json.dumps(data)
             ]
     try:
@@ -99,6 +104,7 @@ async def handle_client(reader, writer):
         content = message.get('content')
         replication = message.get('replication')
         blocksize = message.get('blocksize')
+        filepath = message.get('filepath')
 
         bytes_num = get_byte_count(content)
         Block_byte = 1
@@ -113,7 +119,7 @@ async def handle_client(reader, writer):
             b = 'Block'+str(i)
             blocks[b] = 'DataNode'+str(i%Blocks)
             DataNode('DataNode'+str(i%Blocks), filename, result[i], Num='Block'+str(i))
-        MetaData(filename,blocks,replication,BlockNum)
+        MetaData(filename,blocks,replication,BlockNum,filepath)
 
     await writer.drain()
     writer.close()
