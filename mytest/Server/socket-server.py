@@ -93,8 +93,27 @@ async def handle_client(reader, writer):
                 if(i!='edfs'):
                     args.append(i)
             try:
-                result = subprocess.run(args, capture_output=True, text=True)
-                writer.write(result.stdout.encode())
+                if args[2] == '-put':
+                    result = subprocess.run(args, capture_output=True, text=True)
+                    if result.stdout == '':
+                        local_path = args[3]
+                        edfs_path = args[4]
+                        file_name_encoded = local_path[local_path.rfind('/')+1:].replace(".", "-")
+                        with open(local_path) as f:
+                            file_content = f.read()
+                        message = {
+                            'type': 'upload',
+                            'filepath': edfs_path,
+                            'filename': file_name_encoded,
+                            'content': file_content,
+                            'replication': '1', 
+                            'blocksize': '128MB' 
+                            }
+                    else:
+                        writer.write(result.stdout.encode())
+                else:
+                    result = subprocess.run(args, capture_output=True, text=True)
+                    writer.write(result.stdout.encode())
             except Exception as e:
                 print(e)
 
