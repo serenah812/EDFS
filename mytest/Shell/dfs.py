@@ -132,15 +132,15 @@ def cat(url, path):
         return 'Error: ' + path + ' is a directory.'
 
 def create(url, path, data):
-    if check_if_file(path) == 'file':
+    # if check_if_file(path) == 'file':
         file_path_encoded = encoding(path)
         if check_exist(url, path):
             data = json.loads(data)
             r = requests.patch(url + file_path_encoded + '.json', json=data)
         else:
             print('Error: no such file.')
-    else:
-        print('Error: ' + path + ' is a directory.')
+    # else:
+    #     print('Error: ' + path + ' is a directory.')
 
 def put(url, local_path, edfs_path):
     # uploads a file from the local file system to EDFS
@@ -243,7 +243,6 @@ def main():
                     exit(0)
 
     elif command =='-create':
-        print("**")
         if len(sys.argv) != 4:
             print('Error: command is not following the execution format.')
             exit(0)

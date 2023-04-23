@@ -9,7 +9,6 @@ tracemalloc.start()
 def to_json(key, value):
     # 构建一个字典，包含指定的key-value
     data = {key: value}
-
     # 使用json.dumps函数将字典转换为JSON格式
     json_data = json.dumps(data)
 
