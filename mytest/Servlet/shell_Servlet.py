@@ -42,7 +42,7 @@ async def handle_upload(request):
 
         for filename in file_list:
             dictt = {}
-            comm = 'edfs -ls /' + filename
+            comm = 'edfs -cat /MetaData/' + filename
             dictt['type'] = 'shell'
             dictt['command'] = comm
             print(dictt)
