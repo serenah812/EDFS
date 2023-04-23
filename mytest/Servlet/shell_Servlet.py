@@ -64,7 +64,8 @@ async def handle_upload(request):
                         elif(text[0]=='Replication:'):
                             replication = text[1]
                         else:
-                            blockinfo[cnt]={text[0]:text[1]}
+                            blc = text[0].replace(':','')
+                            blockinfo[cnt]={blc:text[1]}
                             cnt = cnt + 1
                 data = {
                     'filename': filename,

@@ -2,9 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Block Information</title>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+	<div class="panel">
+								<div class="panel-heading">
+									<h3 class="panel-title">Block Information</h3>
+								</div>
+								<div class="panel-body">
+									<table class="table1" id="table1">
+										<thead>
+											<tr>
+												<th>Blcok</th>
+												<th>DataNode</th>
+												<th>info</th>
+											</tr>
+										</thead>
+										<tbody>
+										</tbody>
+									</table>
+								</div>
+							</div>
 
+	<script type="text/javascript">
+		// 从URL查询参数中获取JSON字符串，并解析为JavaScript对象
+		var urlParams = new URLSearchParams(window.location.search);
+		var jsonData = urlParams.get('data');
+		var jsonData1 = urlParams.get('filenamee');
+		console.log(data)
+		var data = JSON.parse(decodeURIComponent(jsonData));
+		var filenamee = JSON.parse(decodeURIComponent(jsonData1));
+		const tbody = $("#table1");
+		// 使用数据对象执行任何你需要的操作
+		console.log(data);
+		function myFunction() {
+			console.log(data)
+			$.each(data, function(entityName, entity) {
+				var keys = Object.keys(entity);
+				var row = $('<tr>');
+				$.each(keys, function(index, key) {
+					console.log(entity[key])
+					var keyCell = $('<td>').text(key);
+					var valueCell = $('<td>').text(entity[key]);
+					row.append(keyCell).append(valueCell);
+					})
+				var buttonCell = $('<td>');
+				var button = $('<button>').text('View');
+				var column2 = row.find('td:nth-child(2)').text();
+				var column3 = row.find('td:nth-child(3)').text();
+
+				button.click(function() {
+					  //从该行中提取所需信息
+					  var column1 = row.find('td:nth-child(1)').text();
+					  //创建一个包含所提取信息的对象
+					  var data1 = { column1: column1, column2: column2 };
+					  console.log(data)
+					  //向后端发送请求
+					  $.ajax({
+						type: 'POST',
+						url: 'http://localhost:7999/shell',
+						data: JSON.stringify({ 'command': 'edfs -blockMetadata /'
+									+ column2 +'/'
+									+ filenamee + '/'
+									+ column1
+						}),
+						contentType: 'application/json',
+						success: function(response) {
+							console.log(response)
+							alert(response)
+						},
+						error: function(xhr, status, error) {
+						  //处理错误
+						  console.error(error);
+						}
+					  });
+				});
+				buttonCell.append(button);
+				row.append(buttonCell);
+				tbody.append(row);
+				});
+
+        }
+	  	window.onload = function() {
+			myFunction();
+        };
+
+	</script>
 </body>
 </html>

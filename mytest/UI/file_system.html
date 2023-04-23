@@ -121,7 +121,6 @@
 			myFunction();
 		}
 		function myFunction() {
-
 			$.ajax({
 				type: 'POST',
 				url: 'http://localhost:7999/shell',
@@ -146,7 +145,7 @@
 							var buttonC = $('<td>');
 							var butt = $('<button>').text('Show');
 							butt.click(function(){
-								blockinfo(entity[key])
+								blockinfo(entity[key],row.find('td:nth-child(2)').text())
 							})
 							buttonC.append(butt);
 							row.append(buttonC);
@@ -219,9 +218,13 @@
 					}
 			});
       }
-        function blockinfo(data){
+        function blockinfo(data,filenamee){
+			var data = JSON.stringify(data);
+			var filenamee = JSON.stringify({'filenamee':filenamee});
 			console.log(data)
-			window.location.href = "blockinfo.html";
+			var url = "blockinfo.html?data=" + encodeURIComponent(data)
+					+"&filenamee="+ encodeURIComponent(filenamee);
+			window.open(url, "blockinfo", "width=450,height=450");
 		}
 	  	window.onload = function() {
 			myFunction();
