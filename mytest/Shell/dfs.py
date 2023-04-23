@@ -180,6 +180,19 @@ def get(url, edfs_path, local_path):
     else:
         print('Error: ' + edfs_path + ' is a directory.')
 
+def blockMetadata(url, path):
+    if check_if_file(path) == 'file':
+        if check_exist(url, path):
+            path = path[:path.rfind('/')] + '/' + encoding(path[path.rfind('/') + 1:])
+            file_name_encoded = encoding(path[path.rfind('/') + 1:])
+            r = requests.get(url + path + '.json').json()
+            for k, v in r.items():
+                print(k + ': ' + str(v))
+        else:
+            print('Error: no such file in EDFS.')
+    else:
+        print('Error: ' + path + ' is a directory.')
+
 def main():
     url = 'https://project-4de1a-default-rtdb.firebaseio.com/'
     # check if the command start with -
@@ -188,7 +201,7 @@ def main():
         print('Error: command is required to be starts with \'-\'.')
         exit(0)
 
-    elif command in ['-ls', '-rm', '-mkdir', '-rmdir', '-cat']:
+    elif command in ['-ls', '-rm', '-mkdir', '-rmdir', '-cat', '-blockMetadata']:
         if len(sys.argv) != 3:
             print('Error: command is not following the execution format.')
             exit(0)
@@ -211,6 +224,8 @@ def main():
                     rmdir(url, edfs_path)
                 elif command == '-cat':
                     print(cat(url, edfs_path))
+                elif command == '-blockMetadata':
+                    blockMetadata(url, edfs_path)
                     
     elif command in ['-put', '-get']:
         if len(sys.argv) != 4:
