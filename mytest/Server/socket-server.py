@@ -15,7 +15,7 @@ def MetaData(filename,blocks,replication,BlockNum):
     pyfilename = '../Shell/dfs.py'
     # 输入文件名称
     try:
-        args = ['python', pyfilename, '-mkdir', '/MetaData/'+str(filename)]
+        args = ['python', pyfilename, '-mkdir', '/'+str(filename)]
         run_command(args)
     except Exception as e:
         print(e)
@@ -37,7 +37,7 @@ def DataNode(Datanode,filename,data,Num):
     pyfilename = '../Shell/dfs.py'
     # 输入文件名称
     try:
-        args = ['python', pyfilename, '-mkdir', '/'+ Datanode +'/'+str(filename)]
+        args = ['python', pyfilename, '-createDataNode', '/'+ Datanode +'/'+str(filename)]
         run_command(args)
     except Exception as e:
         print(e)
@@ -104,7 +104,7 @@ async def handle_client(reader, writer):
         Block_byte = 1
         if(blocksize =='128MB'):
             # Block_byte = 1073741824
-            Block_byte = 50000
+            Block_byte = 4000
         BlockNum = divide_ceil(bytes_num, Block_byte)
         blocks = {}
         Blocks = 3
