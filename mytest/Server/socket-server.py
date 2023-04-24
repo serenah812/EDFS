@@ -4,6 +4,15 @@ import subprocess
 import json
 import math
 
+def size_to_bytes(size_str):
+    units = {"B": 1, "KB": 1024, "MB": 1024 ** 2, "GB": 1024 ** 3, "TB": 1024 ** 4}
+    size = size_str.split()
+    for unit, factor in units.items():
+        if unit == size[1]:
+            # size[] = float(size_str.replace(unit, ""))
+            return int(int(size[0]) * factor)
+    return  1
+    raise ValueError("Invalid size format: " + size_str)
 
 def run_command(args):
     try:
@@ -107,7 +116,7 @@ async def handle_client(reader, writer):
                             'filename': file_name_encoded,
                             'content': file_content,
                             'replication': '1', 
-                            'blocksize': '128MB' 
+                            'blocksize': '128 MB'
                             }
                     else:
                         writer.write(result.stdout.encode())
@@ -126,10 +135,7 @@ async def handle_client(reader, writer):
         filepath = message.get('filepath')
 
         bytes_num = get_byte_count(content)
-        Block_byte = 1
-        if(blocksize =='128MB'):
-            # Block_byte = 1073741824
-            Block_byte = 4000
+        Block_byte = size_to_bytes(blocksize)
         BlockNum = divide_ceil(bytes_num, Block_byte)
         blocks = {}
         Blocks = 3

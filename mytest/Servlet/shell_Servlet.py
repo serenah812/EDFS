@@ -28,6 +28,7 @@ async def tcp_client(message):
 async def handle_upload(request):
     data = await request.json()
     command = data.get('command')
+    path = data.get('path')
     # get output of the command from socket server
     dict = {}
     dict['type'] = 'shell'
@@ -41,7 +42,7 @@ async def handle_upload(request):
 
         for filename in file_list:
             dictt = {}
-            comm = 'edfs -blockMetadata /' + filename
+            comm = 'edfs -blockMetadata ' +path+'/'+ filename
             dictt['type'] = 'shell'
             dictt['command'] = comm
             outputt = await tcp_client(dictt)

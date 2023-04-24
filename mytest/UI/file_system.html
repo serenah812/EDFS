@@ -61,16 +61,16 @@
 							<!-- <button onclick="handleFile()" type="button" class="btn btn-primary">Upload</button> -->
 							<br>
 							<h4>Block Size:</h4>
-							<input id = "blocksize" type="text" class="form-control" value="128MB">
+							<input id = "blocksize" type="text" class="form-control" value="60 B">
 							<br>
 							<h4>Replication:</h4>
-							<input id = "replication" type="text" class="form-control" value="1">
+							<input id = "replication" type="text" class="form-control" value="1" readonly="true">
 							<br>
 							<p id="response"> </p>
 							<input id = "dir" type="text" class="form-control" value="/">
 							<br>
 							<button onclick="sendFileContent()" type="button" class="btn btn-primary">Upload File Content</button>
-							<button onclick="listt()" type="button" class="btn btn-primary">Show</button>
+<!--							<button onclick="listt()" type="button" class="btn btn-primary">Show</button>-->
 						</div>
 <!--						<div id="file-list"></div>-->
 						<!-- BASIC TABLE -->
@@ -113,18 +113,19 @@
         let fileList = document.getElementById('file-list');
         let dir = document.getElementById('dir').value;
 		var cnt = 1
-		function listt() {
-			dir = document.getElementById('dir').value;
-			cnt = 1
-			// tbody.find("tr:not(:first-child)").remove();
-			tbody.find('tr').not(':first').remove();
-			myFunction();
-		}
-		function myFunction() {
+		// function listt() {
+		// 	dir = document.getElementById('dir').value;
+		// 	cnt = 1
+		// 	// tbody.find("tr:not(:first-child)").remove();
+		// 	tbody.find('tr').not(':first').remove();
+		// 	myFunction();
+		// }
+		function myFunction(x) {
+		console.log(x)
 			$.ajax({
 				type: 'POST',
 				url: 'http://localhost:7999/shell',
-				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls '+ dir }),
+				data: JSON.stringify({ 'content':'fileinfo','command': 'edfs -ls '+ x ,'path':x}),
 				contentType: 'application/json',
 				success: function(data) {
 					var data = JSON.parse(data);
@@ -159,16 +160,16 @@
 
 						if(column3!='directory'){
 							button.click(function() {
-						  //从该行中提取所需信息
-						  var column1 = row.find('td:nth-child(1)').text();
-						  //创建一个包含所提取信息的对象
-						  var data = { column1: column1, column2: column2 };
-						  console.log(data)
-						  //向后端发送请求
-						  $.ajax({
+						    //从该行中提取所需信息
+						    var column1 = row.find('td:nth-child(1)').text();
+						    //创建一个包含所提取信息的对象
+						    var data = { column1: column1, column2: column2 };
+						    console.log(data)
+						    //向后端发送请求
+						    $.ajax({
 							type: 'POST',
 							url: 'http://localhost:7999/shell',
-							data: JSON.stringify({ 'command': 'edfs -cat /'+column2 }),
+							data: JSON.stringify({ 'command': 'edfs -cat '+x+"/"+column2 }),
 							contentType: 'application/json',
 							success: function(response) {
 							  //处理响应
@@ -202,12 +203,13 @@
 						});
 						buttonCell.append(button);
 						row.append(buttonCell);
-						}else {
+						}
+						else {
 							button2.click(function() {
-								dir = dir + column2;
+								xxx = x  + column2 ;
 								cnt = 1
 								tbody.find('tr').not(':first').remove();
-								myFunction();
+								myFunction(xxx);
 							})
 						buttonCell.append(button2);
 						row.append(buttonCell);
@@ -227,11 +229,12 @@
 			window.open(url, "blockinfo", "width=450,height=450");
 		}
 	  	window.onload = function() {
-			myFunction();
+			x = dir
+			myFunction(x);
         };
 		function sendFileContent() {
 			const file = document.getElementById("fileInput").files[0];
-			const filePath = '/'
+			const filePath = document.getElementById('dir').value;
 			const fileName = file.name;
 			const reader = new FileReader();
 			let fileContent = ''
