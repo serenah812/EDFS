@@ -30,14 +30,10 @@
 		var urlParams = new URLSearchParams(window.location.search);
 		var jsonData = urlParams.get('data');
 		var jsonData1 = urlParams.get('filenamee');
-		console.log(data)
 		var data = JSON.parse(decodeURIComponent(jsonData));
 		var filenamee = JSON.parse(decodeURIComponent(jsonData1));
 		const tbody = $("#table1");
-		// 使用数据对象执行任何你需要的操作
-		console.log(data);
 		function myFunction() {
-			console.log(data)
 			$.each(data, function(entityName, entity) {
 				var keys = Object.keys(entity);
 				var row = $('<tr>');
@@ -55,16 +51,13 @@
 				button.click(function() {
 					  //从该行中提取所需信息
 					  var column1 = row.find('td:nth-child(1)').text();
-					  //创建一个包含所提取信息的对象
-					  var data1 = { column1: column1, column2: column2 };
-					  console.log(data)
 					  //向后端发送请求
 					  $.ajax({
 						type: 'POST',
 						url: 'http://localhost:7999/shell',
-						data: JSON.stringify({ 'command': 'edfs -blockMetadata /'
+						data: JSON.stringify({ 'command': 'edfs -blockData /'
 									+ column2 +'/'
-									+ filenamee + '/'
+									+ filenamee.filenamee + '/'
 									+ column1
 						}),
 						contentType: 'application/json',
