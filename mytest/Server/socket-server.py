@@ -116,7 +116,7 @@ async def handle_client(reader, writer):
                             'filename': file_name_encoded,
                             'content': file_content,
                             'replication': '1', 
-                            'blocksize': '128 MB'
+                            'blocksize': '60 B'
                             }
                     else:
                         writer.write(result.stdout.encode())
